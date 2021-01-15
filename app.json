@@ -1,6 +1,5 @@
 {
   "stack": "heroku-20",
-  "repository": "",
   "buildpacks": [
     {
       "url": "heroku/python"
