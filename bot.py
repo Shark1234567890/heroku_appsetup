@@ -24,24 +24,30 @@ WT_ROOM_ID = os.environ['WT_ROOM_ID']
 app = Flask(__name__)
 api = WebexTeamsAPI(access_token=WT_BOT_TOKEN)
 
-# defining the decorater and route registration for incoming meraki alerts
+# defining the decorator and route registration for incoming alerts
 @app.route('/', methods=['POST'])
 def alert_received():
     raw_json = request.get_json()
     print(raw_json)
+    state = raw_json['state']
 
-    alert_name = raw_json['ruleName']
-    evalMatches = raw_json['evalMatches']
-    for match in evalMatches:
-        threshold_value = match['value']
-        device = match['tags']['host']
-        interface = match['tags']['interface']
-        # notify the user about alert
+    if state == 'alerting':
+        alert_name = raw_json['ruleName']
         notification_alert = (
-            f"🚨 **DOM Alert: {alert_name}** 🚨  \n"
-            f"🔔 Interface {interface} on {device} has reached a value of {threshold_value}."
+            f"🚨🚨🚨 **DOM Alert: Thresholds exceeded for {alert_name} at following transceiver(s):**"
         )
         api.messages.create(roomId=WT_ROOM_ID, markdown=notification_alert)
+
+        evalMatches = raw_json['evalMatches']
+        for match in evalMatches:
+            threshold_value = round(match['value'], 3)
+            device = match['tags']['host']
+            interface = match['tags']['interface']
+            media_type = match['tags']['media_type']
+            matches = (
+                f"🔔 Transceiver {media_type} at {interface} on {device} has reached a value of {threshold_value}."
+            )
+            api.messages.create(roomId=WT_ROOM_ID, markdown=matches)
 
     return jsonify({'success': True})
 
