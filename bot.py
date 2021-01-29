@@ -34,7 +34,7 @@ def alert_received():
     if state == 'alerting':
         alert_name = raw_json['ruleName']
         notification_alert = (
-            f"🚨🚨🚨 **DOM Alert: Thresholds exceeded for {alert_name} at following transceiver(s):**"
+            f"🚨🚨🚨 **DOM Alert:** Thresholds exceeded for **{alert_name}** at following transceiver(s):"
         )
         api.messages.create(roomId=WT_ROOM_ID, markdown=notification_alert)
 
@@ -45,7 +45,7 @@ def alert_received():
             interface = match['tags']['interface']
             media_type = match['tags']['media_type']
             matches = (
-                f"🔔 Transceiver {media_type} at {interface} on {device} has reached a value of {threshold_value}."
+                f"🔔 {media_type} at {interface} on {device} reached a value of {threshold_value}."
             )
             api.messages.create(roomId=WT_ROOM_ID, markdown=matches)
 
